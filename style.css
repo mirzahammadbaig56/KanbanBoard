@@ -286,6 +286,8 @@ main {
     box-shadow: 0 3px 0 var(--paper-shadow), 0 6px 10px rgba(0, 0, 0, 0.28);
     transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease, max-height .25s ease, margin .25s ease, padding .25s ease;
     animation: cardIn .28s cubic-bezier(.2, .8, .3, 1) both;
+    -webkit-user-drag: element;
+    touch-action: none;
 }
 
 @keyframes cardIn {
