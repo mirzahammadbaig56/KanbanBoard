@@ -176,7 +176,8 @@
                 origY: rect.top,
                 width: rect.width,
                 height: rect.height,
-                dragging: false
+                dragging: false,
+                parent: this.parentNode
             };
         }, { passive: true });
 
@@ -186,6 +187,8 @@
             let dx = touch.clientX - touchDrag.startX;
             let dy = touch.clientY - touchDrag.startY;
 
+            touchDrag.lastY = touch.clientY;
+
             if (!touchDrag.dragging) {
                 if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
                 touchDrag.dragging = true;
@@ -193,7 +196,12 @@
                 touchDrag.el.style.width = touchDrag.width + 'px';
                 touchDrag.el.style.left = touchDrag.origX + 'px';
                 touchDrag.el.style.top = touchDrag.origY + 'px';
+                touchDrag.el.style.position = 'fixed';
+                touchDrag.el.style.zIndex = '2000';
+                touchDrag.el.style.pointerEvents = 'none';
                 document.body.appendChild(touchDrag.el);
+
+                startAutoScroll();
             }
 
             e.preventDefault();
@@ -201,7 +209,10 @@
             touchDrag.el.style.top = (touchDrag.origY + dy) + 'px';
 
             document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+            let card = touchDrag.el;
+            card.style.display = 'none';
             let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            card.style.display = '';
             let listUnder = elUnder ? elUnder.closest('.card-list') : null;
             if (listUnder) listUnder.classList.add('drag-over');
         }, { passive: false });
@@ -210,9 +221,14 @@
             if (!touchDrag || touchDrag.el !== this) return;
             document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
 
+            stopAutoScroll();
+
             if (touchDrag.dragging) {
                 let touch = e.changedTouches[0];
+                let card = touchDrag.el;
+                card.style.display = 'none';
                 let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                card.style.display = '';
                 let listUnder = elUnder ? elUnder.closest('.card-list') : null;
                 let toCol = listUnder ? listUnder.dataset.col : null;
                 let fromCol = touchDrag.fromCol;
@@ -232,6 +248,7 @@
         });
 
         cardDiv.addEventListener('touchcancel', function () {
+            stopAutoScroll();
             if (touchDrag && touchDrag.el === this) {
                 touchDrag.el.remove();
                 touchDrag = null;
