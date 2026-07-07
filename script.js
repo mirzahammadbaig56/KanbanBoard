@@ -209,10 +209,7 @@
             touchDrag.el.style.top = (touchDrag.origY + dy) + 'px';
 
             document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
-            let card = touchDrag.el;
-            card.style.display = 'none';
             let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
-            card.style.display = '';
             let listUnder = elUnder ? elUnder.closest('.card-list') : null;
             if (listUnder) listUnder.classList.add('drag-over');
         }, { passive: false });
@@ -225,10 +222,7 @@
 
             if (touchDrag.dragging) {
                 let touch = e.changedTouches[0];
-                let card = touchDrag.el;
-                card.style.display = 'none';
                 let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
-                card.style.display = '';
                 let listUnder = elUnder ? elUnder.closest('.card-list') : null;
                 let toCol = listUnder ? listUnder.dataset.col : null;
                 let fromCol = touchDrag.fromCol;
