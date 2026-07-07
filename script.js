@@ -135,7 +135,32 @@
         render();
     }
 
-    let touchDrag = null; 
+    let touchDrag = null;
+    let autoScrollTimer = null;
+
+    function startAutoScroll() {
+        if (autoScrollTimer) return;
+        autoScrollTimer = setInterval(function () {
+            if (!touchDrag || !touchDrag.dragging || touchDrag.lastY == null) return;
+
+            let edge = 70;
+            let maxSpeed = 14;
+            let y = touchDrag.lastY;
+
+            if (y < edge) {
+                let strength = (edge - y) / edge;
+                window.scrollBy(0, -maxSpeed * strength);
+            } else if (y > window.innerHeight - edge) {
+                let strength = (y - (window.innerHeight - edge)) / edge;
+                window.scrollBy(0, maxSpeed * strength);
+            }
+        }, 16);
+    }
+
+    function stopAutoScroll() {
+        clearInterval(autoScrollTimer);
+        autoScrollTimer = null;
+    }
 
     function attachTouchHandlers(cardDiv, card, col) {
         cardDiv.addEventListener('touchstart', function (e) {

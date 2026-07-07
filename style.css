@@ -418,7 +418,7 @@ main {
     line-height: 1;
     padding: 2px 5px;
     border-radius: 4px;
-    opacity: 0;
+    opacity: 0.1;
     transition: opacity .12s, color .12s, background .12s;
 }
 
@@ -514,6 +514,10 @@ main {
 
     .card-list {
         overflow-y: visible;
+    }
+
+    .card-del {
+        opacity: 1;
     }
 }
 
