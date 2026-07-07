@@ -311,6 +311,15 @@ main {
     opacity: 0.35;
 }
 
+.card.touch-dragging {
+    position: fixed;
+    z-index: 2000;
+    pointer-events: none;
+    opacity: 0.92;
+    transform: rotate(2deg) scale(1.03);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+}
+
 .card.filtered-out {
     opacity: 0;
     max-height: 0;

@@ -135,6 +135,86 @@
         render();
     }
 
+    let touchDrag = null; 
+
+    function attachTouchHandlers(cardDiv, card, col) {
+        cardDiv.addEventListener('touchstart', function (e) {
+            let touch = e.touches[0];
+            let rect = this.getBoundingClientRect();
+            touchDrag = {
+                el: this,
+                cardId: card.id,
+                fromCol: col.id,
+                startX: touch.clientX,
+                startY: touch.clientY,
+                origX: rect.left,
+                origY: rect.top,
+                width: rect.width,
+                height: rect.height,
+                dragging: false
+            };
+        }, { passive: true });
+
+        cardDiv.addEventListener('touchmove', function (e) {
+            if (!touchDrag || touchDrag.el !== this) return;
+            let touch = e.touches[0];
+            let dx = touch.clientX - touchDrag.startX;
+            let dy = touch.clientY - touchDrag.startY;
+
+            if (!touchDrag.dragging) {
+                if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+                touchDrag.dragging = true;
+                touchDrag.el.classList.add('touch-dragging');
+                touchDrag.el.style.width = touchDrag.width + 'px';
+                touchDrag.el.style.left = touchDrag.origX + 'px';
+                touchDrag.el.style.top = touchDrag.origY + 'px';
+                document.body.appendChild(touchDrag.el);
+            }
+
+            e.preventDefault();
+            touchDrag.el.style.left = (touchDrag.origX + dx) + 'px';
+            touchDrag.el.style.top = (touchDrag.origY + dy) + 'px';
+
+            document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+            let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            let listUnder = elUnder ? elUnder.closest('.card-list') : null;
+            if (listUnder) listUnder.classList.add('drag-over');
+        }, { passive: false });
+
+        cardDiv.addEventListener('touchend', function (e) {
+            if (!touchDrag || touchDrag.el !== this) return;
+            document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+
+            if (touchDrag.dragging) {
+                let touch = e.changedTouches[0];
+                let elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                let listUnder = elUnder ? elUnder.closest('.card-list') : null;
+                let toCol = listUnder ? listUnder.dataset.col : null;
+                let fromCol = touchDrag.fromCol;
+                let cardId = touchDrag.cardId;
+
+                touchDrag.el.remove();
+                touchDrag = null;
+
+                if (toCol) {
+                    moveCard(fromCol, toCol, cardId);
+                } else {
+                    render();
+                }
+            } else {
+                touchDrag = null;
+            }
+        });
+
+        cardDiv.addEventListener('touchcancel', function () {
+            if (touchDrag && touchDrag.el === this) {
+                touchDrag.el.remove();
+                touchDrag = null;
+                render();
+            }
+        });
+    }
+
     function render() {
         columns.innerHTML = '';
         let total = 0;
@@ -205,6 +285,8 @@
                 cardDiv.querySelector('.card-del').addEventListener('click', function () {
                     deleteCard(col.id, card.id);
                 });
+
+                attachTouchHandlers(cardDiv, card, col);
 
                 list.appendChild(cardDiv);
             }
